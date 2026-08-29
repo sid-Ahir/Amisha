@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>૭૫ ડે હાર્ડ ચેલેન્જ - અમીષા & સિદ્ધ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #020617;
+            background-image: url('bg.jpg?v=99');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            overflow-x: hidden;
+        }
+        #dark-overlay-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(2, 6, 23, 0.85); 
+            z-index: -1;
+        }
+        @keyframes neon-blink {
+            0%, 100% { text-shadow: 0 0 10px #ff9a9e, 0 0 20px #ff9a9e, 0 0 30px #ff0055, 0 0 40px #ff0055; opacity: 1; }
+            50% { text-shadow: 0 0 5px #ff9a9e, 0 0 10px #ff9a9e, 0 0 15px #ff0055; opacity: 0.8; }
+        }
+        .amisha-font {
+            font-family: 'Dancing Script', cursive;
+            color: #fff0f5;
+            animation: neon-blink 1.5s infinite alternate;
+            font-size: 3.8rem;
+            line-height: 1.2;
+        }
+        @media (max-width: 640px) { .amisha-font { font-size: 3.2rem; } }
+        .golden-theme { background: linear-gradient(135deg, rgba(66,32,6,0.95) 0%, rgba(120,53,15,0.95) 50%, rgba(69,26,3,0.95) 100%) !important; }
+        .golden-box { background: rgba(251, 191, 36, 0.15) !important; border-color: #f59e0b !important; box-shadow: 0 0 25px rgba(245, 158, 11, 0.3); }
+        #vertical-progress-wrapper {
+            position: fixed; left: 6px; top: 25%; bottom: 25%; width: 10px;
+            background-color: rgba(30, 41, 59, 0.8);
+            border-radius: 999px; border: 1px solid #334155;
+            z-index: 40; display: flex; align-items: flex-end; overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        @media (min-width: 640px) { #vertical-progress-wrapper { left: 16px; width: 14px; } }
+        #vertical-bar-fill { width: 100%; background: linear-gradient(to top, #f59e0b, #facc15); transition: height 0.5s ease-out; height: 0%; }
+    </style>
+</head>
+<body id="main-body" class="font-sans transition-all duration-1000 pb-10 overflow-x-hidden">
+    <div id="dark-overlay-bg"></div>
+
+    <div id="mood-overlay" class="fixed inset-0 bg-slate-950/95 z-[60] flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-rose-500 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-[0_0_40px_rgba(243,24,104,0.4)]">
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-200 mb-6 drop-shadow-md">મારા જાન, આજે તું કેવું ફીલ કરી રહી છે?</h2>
+            <div id="mood-buttons" class="flex justify-center gap-3 sm:gap-4 mb-4">
+                <button onclick="handleMood('ખુશ')" class="bg-slate-800/80 hover:bg-slate-700 text-5xl p-4 sm:p-5 rounded-2xl transition hover:scale-110 shadow-lg">😊</button>
+                <button onclick="handleMood('થાકેલી')" class="bg-slate-800/80 hover:bg-slate-700 text-5xl p-4 sm:p-5 rounded-2xl transition hover:scale-110 shadow-lg">😩</button>
+                <button onclick="handleMood('એનર્જેટિક')" class="bg-slate-800/80 hover:bg-slate-700 text-5xl p-4 sm:p-5 rounded-2xl transition hover:scale-110 shadow-lg">🤩</button>
+            </div>
+            <div id="mood-response" class="hidden">
+                <p id="mood-response-text" class="text-rose-400 font-bold text-lg leading-relaxed mb-8"></p>
+                <button onclick="closeMood()" class="w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-black py-4 px-6 rounded-xl shadow-[0_0_20px_rgba(225,29,72,0.5)] text-xl flex items-center justify-center gap-2 transition hover:scale-105">
+                    <span>Love</span> <span class="text-3xl animate-pulse drop-shadow-md">❤</span> <span>You</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-xl border-b border-rose-500/30 py-2 sm:py-3 shadow-xl">
+        <div class="max-w-2xl mx-auto px-4 text-center flex flex-col items-center justify-center">
+            <h1 class="amisha-font mb-2">Amisha</h1>
+            <p class="text-xs sm:text-sm font-bold text-white tracking-widest uppercase mb-3">Level: <span id="header-badge" class="text-amber-300">New Beginner 🌱</span></p>
+            <div class="flex justify-between items-center w-full mb-1 text-[10px] sm:text-xs font-bold text-slate-300 px-2">
+                <span>0 Day</span>
+                <span id="overall-pct" class="text-amber-400">0%</span>
+                <span>75 Days</span>
+            </div>
+            <div class="w-full bg-slate-800/80 h-2 sm:h-2.5 rounded-full overflow-hidden shadow-inner border border-slate-700/50">
+                <div id="overall-bar" class="bg-gradient-to-r from-amber-600 to-yellow-400 h-full w-0 transition-all duration-700"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="vertical-progress-wrapper"><div id="vertical-bar-fill"></div></div>
+
+    <div id="main-container" class="w-full max-w-2xl mx-auto px-3 pl-8 sm:px-8 mt-6 bg-slate-900/85 backdrop-blur-sm rounded-3xl shadow-2xl py-6 border border-slate-700 relative transition-all duration-1000 overflow-hidden box-border">
+        <button onclick="showMagicMessage()" class="absolute top-4 left-8 sm:left-6 text-2xl opacity-40 hover:opacity-100 transition-opacity drop-shadow-lg z-10">❤️</button>
+        <button onclick="openVault()" class="absolute top-4 right-4 sm:right-6 text-xl opacity-80 hover:opacity-100 text-amber-500 font-bold drop-shadow-md z-10">🔒 Vault</button>
+
+        <div class="flex justify-center gap-1 sm:gap-4 items-center mb-6 mt-10 bg-slate-800/70 p-2 sm:p-3 rounded-2xl border border-slate-600 flex-wrap shadow-lg">
+            <div class="text-center px-2 sm:px-4">
+                <span class="text-[10px] sm:text-xs text-slate-300 block mb-1 font-bold">સ્ટ્રીક</span>
+                <span id="streak-count" class="font-black text-amber-400 text-base sm:text-lg drop-shadow-md">🔥 ૦</span>
+            </div>
+            <div class="text-center border-l border-r border-slate-500 px-3 sm:px-4 cursor-pointer hover:scale-105 transition" onclick="openSiddhMenu()">
+                <span class="text-[10px] sm:text-xs text-amber-300/90 font-bold block mb-1 animate-pulse">કોઈન મેનુ!</span>
+                <span id="coin-count" class="font-black text-yellow-400 text-lg sm:text-xl drop-shadow-md">🪙 ૦</span>
+            </div>
+            <div class="text-center px-2 sm:px-4">
+                <button onclick="togglePeriodMode()" id="period-btn" class="bg-rose-900/60 hover:bg-rose-800 border border-rose-500 text-rose-100 px-2 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition shadow-md">
+                    🌸 પિરિયડ પાસ
+                </button>
+            </div>
+        </div>
+
+        <p id="date-subtitle" class="text-center text-sm sm:text-base text-slate-300 mb-6 font-bold tracking-wide bg-slate-800/50 py-2.5 rounded-xl border border-slate-700/50"></p>
+
+        <div class="flex gap-2 mb-6">
+            <button onclick="switchView('checklist')" id="btn-checklist" class="flex-1 bg-amber-500 text-slate-950 font-black py-3 rounded-xl text-sm transition shadow-lg">આજનો ટાર્ગેટ</button>
+            <button onclick="switchView('history')" id="btn-history" class="flex-1 bg-slate-800/80 text-slate-200 font-bold py-3 rounded-xl text-sm transition border border-slate-600 shadow-md">હિસ્ટ્રી (૧-૭૫)</button>
+        </div>
+
+        <div id="view-checklist" class="space-y-6 mb-8">
+            <div class="bg-slate-800/60 p-4 sm:p-5 rounded-2xl border border-slate-600 shadow-md">
+                <h2 class="text-amber-400 font-black text-base sm:text-lg mb-3 border-b border-slate-600 pb-2">☀️ સવારની શરૂઆત</h2>
+                <div class="space-y-3">
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="0" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>સવારે ૫ વાગ્યે ઊઠવું</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="1" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>ગરમ પાણી પીવું</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="2" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>૨૦ મિનિટ મેડિટેશન</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="3" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-bold text-amber-300">સૂર્યનારાયણને જળ & દીવાબત્તી</span></label>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/60 p-4 sm:p-5 rounded-2xl border border-slate-600 shadow-md">
+                <h2 class="text-amber-400 font-black text-base sm:text-lg mb-3 border-b border-slate-600 pb-2">💪 હેવી વર્કઆઉટ</h2>
+                <div class="space-y-3">
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="4" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>૧૦૮ સૂર્ય નમસ્કાર</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="5" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>૧૦૦ પુશ-અપ</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="6" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>૨૫ ઇન્ક્લાઇન પુશ-અપ</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="7" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>૨૫ ડિક્લાઇન પુશ-અપ</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="8" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>૨૦૦ સ્ક્વોટ</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="9" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>૨૫૦ દોરડા (સ્કીપિંગ)</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="10" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-bold text-rose-400">એબ્સ અને હાર્ડ વર્કઆઉટ</span></label>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/60 p-4 sm:p-5 rounded-2xl border border-slate-600 shadow-md">
+                <h2 class="text-amber-400 font-black text-base sm:text-lg mb-3 border-b border-slate-600 pb-2">🏃‍♂️ કાર્ડિયો એન્ડ બોડી રિકવરી</h2>
+                <div class="space-y-3">
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="11" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>૨૦ મિનિટ રનિંગ</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="12" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>૧૫ મિનિટ બ્રિસ્ક વોકિંગ</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="13" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>૧૫ મિનિટ પાવર નેપ</span></label>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/60 p-4 sm:p-5 rounded-2xl border border-slate-600 shadow-md relative overflow-hidden">
+                <h2 class="text-amber-400 font-black text-base sm:text-lg mb-3 border-b border-slate-600 pb-2">🥛 ડાયેટ એન્ડ ન્યુટ્રિશન</h2>
+                <div class="flex justify-between items-center">
+                    <div class="space-y-3 z-10 w-2/3">
+                        <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="14" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>પાણી (૧ લીટર) 💧</span></label>
+                        <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="15" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>પાણી (૨ લીટર) 💧</span></label>
+                        <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="16" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>પાણી (૩ લીટર) 💧</span></label>
+                        <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="17" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>પાણી (૪ લીટર) 💧</span></label>
+                        <label class="flex items-center space-x-3 cursor-pointer mt-3"><input type="checkbox" data-idx="18" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>૨ ગ્લાસ દૂધ પીવું</span></label>
+                    </div>
+                    <div class="z-0 bg-slate-900/70 p-3 sm:p-4 rounded-full border border-slate-600 shadow-inner flex flex-col items-center justify-center min-w-[70px] min-h-[70px]">
+                        <span id="plant-visual" class="text-4xl sm:text-5xl transition-all duration-700 drop-shadow-xl">🌱</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/60 p-4 sm:p-5 rounded-2xl border border-slate-600 shadow-md">
+                <h2 class="text-amber-400 font-black text-base sm:text-lg mb-3 border-b border-slate-600 pb-2">🧠 માઇન્ડ એન્ડ સ્કિલ</h2>
+                <div class="space-y-3">
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="19" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>કોઈપણ બુકના ૧૦ પાના વાંચવા</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="20" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>૦ કલાક ટીવી/ફોનનો ઉપયોગ</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="21" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span>રાત્રે સૂતા પહેલા મેડિટેશન</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="22" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-bold text-amber-300">૩ સેલ્ફી લેવી 📸</span></label>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/95 border-2 border-rose-500/50 p-4 sm:p-5 rounded-2xl shadow-md mb-6">
+                <h2 class="text-rose-300 font-black text-sm sm:text-base mb-3">🌙 મૂનલાઇટ ડાયરી (રાત્રે લખો)</h2>
+                <textarea id="journal-text" onchange="saveJournal()" class="w-full bg-slate-950/80 text-slate-100 text-sm sm:text-base rounded-xl p-4 border border-rose-900/50 focus:outline-none focus:border-rose-400" rows="3" placeholder="આજના દિવસની સૌથી સારી વાત શું રહી?..."></textarea>
+            </div>
+        </div>
+
+        <div id="view-history" class="hidden mb-8">
+            <h2 class="text-xl font-black text-amber-400 mb-2">હિસ્ટ્રી (તમારા જૂના દિવસો)</h2>
+            <p class="text-xs text-slate-300 mb-4 bg-slate-800/60 p-2.5 rounded-lg border border-slate-700/50">કોઈપણ નંબર પર ક્લિક કરીને જૂનો ડેટા જોઈ શકો છો.</p>
+            <div id="days-grid" class="grid grid-cols-5 sm:grid-cols-8 gap-2 sm:gap-3 max-h-[50vh] overflow-y-auto p-3 sm:p-4 bg-slate-900/80 rounded-2xl border border-slate-600 shadow-inner"></div>
+        </div>
+
+        <div id="memory-section" class="hidden mt-8 text-center bg-slate-800/90 p-6 rounded-3xl border-2 border-amber-500/50 shadow-xl">
+            <h3 class="text-amber-400 font-black mb-2 text-xl">🎁 નવી મેમરી અનલોક થઈ!</h3>
+            <p class="text-sm text-slate-200 mb-4 font-bold">સિદ્ધ તરફથી તારા માટે એક ખાસ યાદ...</p>
+            <div class="w-full h-48 bg-slate-950 flex items-center justify-center rounded-2xl border border-slate-600 text-slate-500 text-sm">
+                [અહીં સિદ્ધનો આપેલો ફોટો દેખાશે]
+            </div>
+        </div>
+    </div>
+
+    <!-- સેલિબ્રેશન પૉપ-અપ -->
+    <div id="congrats-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border-2 border-amber-500 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl">
+            <div class="text-6xl mb-4 animate-bounce">🎆💖</div>
+            <h2 id="modal-day-title" class="text-3xl font-black text-amber-400 mb-2">દિવસ પૂરો!</h2>
+            <p class="text-xs text-amber-300/80 mb-6 font-bold tracking-widest uppercase">- સિદ્ધ તરફથી અમીષા માટે -</p>
+            <p id="modal-msg-text" class="text-slate-100 text-lg sm:text-xl mb-8 leading-relaxed font-bold italic"></p>
+            
+            <button onclick="sendWhatsAppAndClose()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black px-6 py-4 rounded-xl transition text-lg flex items-center justify-center gap-2">
+                <span>Selfie for Jan 📸</span> <span class="animate-pulse text-2xl">❤️</span>
+            </button>
+            <p class="text-xs text-slate-400 mt-4 font-bold">આ બટન દબાવવાથી જ ફટાકડા બંધ થશે! 😜</p>
+        </div>
+    </div>
+
+    <div id="siddh-menu" class="fixed inset-0 bg-slate-950/95 hidden flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div class="bg-slate-900 border-2 border-yellow-500 rounded-3xl p-5 sm:p-6 w-full max-w-sm text-center shadow-2xl my-8">
+            <h2 class="text-2xl font-black text-yellow-400 mb-2">👑 સિદ્ધ સ્પેશિયલ મેનુ</h2>
+            <p class="text-xs text-slate-300 mb-6 font-bold">ગોલ્ડ કોઈન વાપરીને રિવોર્ડ માંગો!</p>
+            <div class="space-y-3 mb-6 text-left max-h-[60vh] overflow-y-auto pr-2">
+                <button onclick="redeemMenu(5, 'શોર્ટ ડ્રાઇવ અને આઈસ્ક્રીમ')" class="w-full bg-slate-800 p-3.5 rounded-xl border border-slate-600 flex justify-between items-center"><span class="text-sm font-bold">🍦 ડ્રાઇવ & આઈસ્ક્રીમ</span><span class="text-yellow-400 font-black">૫ 🪙</span></button>
+                <button onclick="redeemMenu(10, 'ફૂલ બોડી મસાજ')" class="w-full bg-slate-800 p-3.5 rounded-xl border border-slate-600 flex justify-between items-center"><span class="text-sm font-bold">💆‍♀️ ફૂલ બોડી મસાજ</span><span class="text-yellow-400 font-black">૧૦ 🪙</span></button>
+                <button onclick="redeemMenu(15, 'ફેવરિટ ડિનર')" class="w-full bg-slate-800 p-3.5 rounded-xl border border-slate-600 flex justify-between items-center"><span class="text-sm font-bold">🍲 ફેવરિટ ડિનર</span><span class="text-yellow-400 font-black">૧૫ 🪙</span></button>
+                <button onclick="redeemMenu(20, 'રોમેન્ટિક ડેટ')" class="w-full bg-slate-800 p-3.5 rounded-xl border border-slate-600 flex justify-between items-center"><span class="text-sm font-bold">🌹 રોમેન્ટિક ડેટ</span><span class="text-yellow-400 font-black">૨૦ 🪙</span></button>
+                <button onclick="redeemMenu(50, 'વિકેન્ડ ટ્રિપ')" class="w-full bg-slate-800 p-3.5 rounded-xl border border-slate-600 flex justify-between items-center"><span class="text-sm font-bold">🏖️ વિકેન્ડ ટ્રિપ</span><span class="text-yellow-400 font-black">૫૦ 🪙</span></button>
+                <button onclick="redeemMenu(75, 'ડાયમંડ ગિફ્ટ')" class="w-full bg-slate-800 p-3.5 rounded-xl border-2 border-yellow-600 flex justify-between items-center"><span class="text-sm font-bold">💎 ડાયમંડ ગિફ્ટ</span><span class="text-yellow-400 font-black">૭૫ 🪙</span></button>
+                <button onclick="redeemMenu(100, 'સિદ્ધ ગુલામ પાસ')" class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 p-4 rounded-xl border-2 border-yellow-300 text-slate-950 flex justify-between items-center shadow-lg"><span class="text-sm font-black">🙇‍♂️ સિદ્ધ ગુલામ પાસ!</span><span class="text-slate-900 font-black text-lg">૧૦૦ 🪙</span></button>
+            </div>
+            <button onclick="closeSiddhMenu()" class="bg-rose-600 text-white px-6 py-3 rounded-xl font-black w-full">બંધ કરો</button>
+        </div>
+    </div>
+
+    <div id="vault-modal" class="fixed inset-0 bg-slate-950/95 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border-2 border-slate-600 rounded-3xl p-8 max-w-md w-full text-center">
+            <div class="text-6xl mb-4">🔒</div>
+            <h2 class="text-3xl font-black text-slate-200 mb-2">Secret Vault</h2>
+            <p id="vault-msg" class="text-amber-500 font-bold mb-6">આ તિજોરી માત્ર ૭૬મા દિવસે (ચેલેન્જ પૂરી થયા પછી) જ ખુલશે!</p>
+            <button onclick="closeVault()" class="bg-slate-700 text-white px-8 py-3 rounded-xl font-bold">પાછા જાવ</button>
+        </div>
+    </div>
+
+    <div id="magic-modal" class="fixed inset-0 bg-slate-950/85 hidden flex items-center justify-center z-50 p-4" onclick="this.classList.add('hidden')">
+        <div class="bg-gradient-to-br from-rose-900 to-rose-800 border-2 border-rose-400 rounded-3xl p-6 sm:p-8 text-center max-w-sm shadow-2xl">
+            <div class="text-5xl mb-6">❤️</div>
+            <p id="magic-msg-text" class="text-white font-bold text-lg sm:text-xl leading-relaxed"></p>
+            <p class="text-[10px] text-rose-300/70 mt-8 font-bold uppercase">(બંધ કરવા સ્ક્રીન પર ક્લિક કરો)</p>
+        </div>
+    </div>
+
+    <script>
+        function safeGet(key, defaultVal) {
+            try { let val = localStorage.getItem(key); return val ? JSON.parse(val) : defaultVal; } catch(e) { return defaultVal; }
+        }
+        const totalTasks = 23; 
+        const targetNumber = "919773205322";
+        let challengeData = safeGet('chalData_v16', {});
+        let completedDaysSet = safeGet('compSet_v16', []);
+        let goldCoins = parseInt(localStorage.getItem('coins_v16')) || 0;
+        let streak = parseInt(localStorage.getItem('streak_v16')) || 0;
+        let isPeriodMode = safeGet('period_v16', false);
+        let journals = safeGet('journals_v16', {});
+        const startDateKey = localStorage.getItem('startDate_v16') || new Date().toISOString().split('T')[0];
+        localStorage.setItem('startDate_v16', startDateKey);
+
+        let audioCtx = null, celebrationActive = false, fireworksInterval = null;
+
+        function playHardSnapSound() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const t = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square'; osc.frequency.setValueAtTime(800, t); osc.frequency.exponentialRampToValueAtTime(100, t + 0.05);
+                gain.gain.setValueAtTime(1.5, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.05);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(t); osc.stop(t + 0.05);
+            } catch(e) {}
+        }
+
+        function getCurrentCalendarDay() {
+            const start = new Date(startDateKey), today = new Date();
+            today.setHours(0,0,0,0); start.setHours(0,0,0,0);
+            return Math.max(1, Math.floor((today - start) / (1000 * 60 * 60 * 24)) + 1);
+        }
+        let viewingDay = getCurrentCalendarDay();
+
+        const levels = ["New Beginner 🌱", "Active Girl 🏃‍♀️", "Warrior Wife ⚔️", "Fire Girl 🔥", "Unstoppable Queen 👑", "Determined Darling 💖", "Champion of Siddh 🏆", "Iron Lady 🦾", "Goddess of Dedication 👸", "The Legend 🌟"];
+        const heartMessages = [
+            "મને ખબર છે તું થાકી ગઈ છો, પણ તારી આ મહેનત જોઈને હું તારા પર ફિદા થઈ ગયો છું! લવ યુ! 😘",
+            "તારો ચહેરો જ્યારે પરસેવે રેબઝેબ હોય ને, ત્યારે તું દુનિયાની સૌથી સુંદર છોકરી લાગે છે! 💖",
+            "સિદ્ધ હંમેશાં તારી સાથે જ છે, હાર ન માનતી મારી જાન! 💪",
+            "તારી જીદ જ તને મંઝિલ સુધી પહોંચાડશે. You are my queen! 👑",
+            "થાક લાગે તો મારા ખભા પર માથું મૂકી દેજે, પણ સફર ન છોડતી. Love you! ❤️"
+        ];
+        function showMagicMessage() { 
+            playHardSnapSound();
+            let rand = Math.floor(Math.random() * heartMessages.length);
+            document.getElementById('magic-msg-text').innerText = heartMessages[rand];
+            document.getElementById('magic-modal').classList.remove('hidden'); 
+        }
+
+        function getRomanticMessage(day) {
+            return day <= 15 ? "આજે પેલો દિવસ પૂરો થયો! તારી આ મહેનત જોઈને મને ગર્વ થાય છે. તું ધારે એ મેળવી શકે છે અમીષા!" : "તારી આ સફર ઇતિહાસ બનાવશે, અને તારો આ સિદ્ધ હંમેશાં તારો જ રહેશે. I Love You! 💖";
+        }
+
+        function handleMood(mood) {
+            playHardSnapSound();
+            document.getElementById('mood-buttons').classList.add('hidden');
+            document.getElementById('mood-response').classList.remove('hidden');
+            document.getElementById('mood-response-text').innerText = `(દિવસ ${viewingDay}) તારી આ ખુશી જોઈને મારો આખો દિવસ સુધરી ગયો! આજની ચેલેન્જ ધમાકેદાર પૂરી કર! 😘`;
+        }
+        function closeMood() { playHardSnapSound(); document.getElementById('mood-overlay').classList.add('hidden'); setupDayUI(); }
+
+        function setupDayUI() {
+            let titleIdx = Math.min(Math.floor((viewingDay - 1) / 6), levels.length - 1);
+            document.getElementById('header-badge').innerText = levels[titleIdx];
+            let targetDate = new Date(startDateKey); targetDate.setDate(targetDate.getDate() + (viewingDay - 1));
+            document.getElementById('date-subtitle').innerText = `આજનો ટાર્ગેટ: દિવસ ${viewingDay} | તારીખ: ${targetDate.toLocaleDateString('gu-IN')}`;
+            const overallPct = Math.round((completedDaysSet.length / 75) * 100);
+            document.getElementById('overall-pct').innerText = `${overallPct}%`;
+            document.getElementById('overall-bar').style.width = `${overallPct}%`;
+            document.getElementById('coin-count').innerText = `🪙 ${goldCoins}`;
+            document.getElementById('streak-count').innerText = `🔥 ${streak}`;
+            document.getElementById('journal-text').value = journals[viewingDay] || "";
+            document.getElementById('memory-section').classList.toggle('hidden', viewingDay < 7 || viewingDay % 7 !== 0);
+            loadChecklist();
+        }
+
+        function switchView(view) {
+            playHardSnapSound();
+            document.getElementById('view-checklist').classList.toggle('hidden', view !== 'checklist');
+            document.getElementById('view-history').classList.toggle('hidden', view !== 'history');
+            document.getElementById('btn-checklist').className = view === 'checklist' ? "flex-1 bg-amber-500 text-slate-950 font-black py-3 rounded-xl text-sm shadow-lg" : "flex-1 bg-slate-800 text-slate-200 font-bold py-3 rounded-xl text-sm border border-slate-600";
+            document.getElementById('btn-history').className = view === 'history' ? "flex-1 bg-amber-500 text-slate-950 font-black py-3 rounded-xl text-sm shadow-lg" : "flex-1 bg-slate-800 text-slate-200 font-bold py-3 rounded-xl text-sm border border-slate-600";
+            if(view === 'history') renderHistoryGrid();
+        }
+
+        function renderHistoryGrid() {
+            const grid = document.getElementById('days-grid'); grid.innerHTML = '';
+            for (let i = 1; i <= 75; i++) {
+                const isCompleted = completedDaysSet.includes(i), isCurrent = (i === getCurrentCalendarDay());
+                const btn = document.createElement('button');
+                btn.className = `p-3 rounded-xl font-black text-sm border-2 ${isCompleted ? 'bg-emerald-600 border-emerald-400 text-white' : isCurrent ? 'bg-amber-600 border-amber-300 text-white animate-pulse' : 'bg-slate-800 border-slate-600 text-slate-300'}`;
+                btn.innerText = i;
+                btn.onclick = () => { playHardSnapSound(); viewingDay = i; switchView('checklist'); setupDayUI(); };
+                grid.appendChild(btn);
+            }
+        }
+
+        function loadChecklist() {
+            const boxes = document.querySelectorAll('input[type="checkbox"]');
+            const state = challengeData[viewingDay] || new Array(totalTasks).fill(false);
+            boxes.forEach((cb, i) => {
+                cb.checked = state[i];
+                if (isPeriodMode && [3,4,5,6,7,8,9,10].includes(i)) { cb.disabled = true; cb.parentElement.classList.add('opacity-40', 'pointer-events-none'); }
+                else { cb.disabled = false; cb.parentElement.classList.remove('opacity-40', 'pointer-events-none'); }
+            });
+            updateProgressBars(state);
+        }
+
+        function handleCheck() {
+            playHardSnapSound();
+            const boxes = document.querySelectorAll('input[type="checkbox"]');
+            let state = [], count = 0;
+            boxes.forEach(cb => { state.push(cb.checked); if(cb.checked) count++; });
+            challengeData[viewingDay] = state; localStorage.setItem('chalData_v16', JSON.stringify(challengeData));
+            updateProgressBars(state);
+            const isDone = (count === totalTasks), wasDone = completedDaysSet.includes(viewingDay);
+            if (isDone && !wasDone) {
+                completedDaysSet.push(viewingDay); localStorage.setItem('compSet_v16', JSON.stringify(completedDaysSet));
+                streak++; if (streak > 0 && streak % 7 === 0) { goldCoins++; alert('૭ દિવસની શાનદાર સ્ટ્રીક! ૧ ગોલ્ડ કોઈન મળ્યો 🪙'); }
+                saveGlobalData(); setupDayUI(); startNonStopCelebration();
+            } else if (!isDone && wasDone) {
+                completedDaysSet = completedDaysSet.filter(d => d !== viewingDay);
+                if (streak > 0) streak--;
+                saveGlobalData(); setupDayUI();
+            }
+        }
+
+        function updateProgressBars(state) {
+            const count = state.filter(Boolean).length, pct = Math.round((count / totalTasks) * 100);
+            document.getElementById('vertical-bar-fill').style.height = `${pct}%`;
+            let water = (state[14]?1:0) + (state[15]?1:0) + (state[16]?1:0) + (state[17]?1:0);
+            const plant = document.getElementById('plant-visual');
+            plant.innerText = ["🌱", "🌿", "🪴", "🌸", "🌹"][water];
+        }
+
+        function togglePeriodMode() {
+            playHardSnapSound();
+            if (!isPeriodMode && confirm("પિરિયડ પાસ એક્ટિવ કરવો છે?")) {
+                isPeriodMode = true; saveGlobalData();
+                let state = challengeData[viewingDay] || new Array(totalTasks).fill(false);
+                [3,4,5,6,7,8,9,10].forEach(i => state[i] = true);
+                challengeData[viewingDay] = state; localStorage.setItem('chalData_v16', JSON.stringify(challengeData));
+                setupDayUI(); handleCheck();
+            } else if (isPeriodMode) { isPeriodMode = false; saveGlobalData(); setupDayUI(); }
+        }
+
+        function saveJournal() { journals[viewingDay] = document.getElementById('journal-text').value; localStorage.setItem('journals_v16', JSON.stringify(journals)); }
+        function saveGlobalData() { localStorage.setItem('coins_v16', goldCoins); localStorage.setItem('streak_v16', streak); localStorage.setItem('period_v16', JSON.stringify(isPeriodMode)); }
+
+        function startNonStopCelebration() {
+            celebrationActive = true;
+            fireworksInterval = setInterval(() => { if(!celebrationActive) return clearInterval(fireworksInterval); confetti({ particleCount: 80, spread: 360, origin: { x: Math.random(), y: Math.random() - 0.2 } }); }, 600);
+            setTimeout(() => { if(!celebrationActive) return; document.getElementById('modal-msg-text').innerText = getRomanticMessage(viewingDay); document.getElementById('congrats-modal').classList.remove('hidden'); }, 3000);
+        }
+
+        function sendWhatsAppAndClose() {
+            playHardSnapSound();
+            celebrationActive = false; clearInterval(fireworksInterval); document.getElementById('congrats-modal').classList.add('hidden');
+            const txt = document.getElementById('journal-text').value || "(કંઈ લખ્યું નથી)";
+            window.open(`https://wa.me/${targetNumber}?text=` + encodeURIComponent(`Siddh! મેં આજનો દિવસ ${viewingDay} કમ્પ્લીટ કરી લીધો છે! 🥳\n\nડાયરી: "${txt}"`), '_blank');
+        }
+
+        function openSiddhMenu() { playHardSnapSound(); document.getElementById('siddh-menu').classList.remove('hidden'); }
+        function closeSiddhMenu() { playHardSnapSound(); document.getElementById('siddh-menu').classList.add('hidden'); }
+        function redeemMenu(cost, name) {
+            playHardSnapSound();
+            if (goldCoins >= cost) { if(confirm(`"${name}" માટે ${cost} કોઈન વાપરવા?`)) { goldCoins -= cost; saveGlobalData(); alert('ડન! સિદ્ધને વોટ્સએપ પર સ્ક્રીનશોટ મોકલો!'); closeSiddhMenu(); } }
+            else alert('પૂરતા કોઈન નથી જાન! 😜');
+        }
+        function openVault() {
+            playHardSnapSound();
+            document.getElementById('vault-modal').classList.remove('hidden');
+            if (viewingDay >= 76) document.getElementById('vault-msg').innerText = "વૉલ્ટ ખુલી ગયું છે! સરપ્રાઈઝ તૈયાર છે! 🎁";
+        }
+        function closeVault() { playHardSnapSound(); document.getElementById('vault-modal').classList.add('hidden'); }
+    </script>
+</body>
+</html>

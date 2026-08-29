@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>૭૫ ડે હાર્ડ ચેલેન્જ - અમીષા & સિદ્ધ</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts for AMISHA Name -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* બેકગ્રાઉન્ડમાં અમીષાનો ફોટો */
+        body {
+            background-color: #020617;
+            background-image: url('c33ae052-d6a2-4f17-ab5c-39528366cd73-1_all_3143.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            overflow-x: hidden; /* પેજ ડાબે-જમણે હલે નહિ એના માટે લૉક */
+        }
+        
+        /* ફોટા પર ડાર્ક શેડ જેથી અક્ષરો એકદમ ક્લિયર વંચાય */
+        #dark-overlay-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(2, 6, 23, 0.85); 
+            z-index: -1;
+        }
+
+        /* અમીષાના નામનો રોઝ ગોલ્ડ (Rose Gold) ગ્લોઈંગ લુક */
+        .amisha-font {
+            font-family: 'Dancing Script', cursive;
+            color: #ff9a9e; /* Rose Pink color */
+            text-shadow: 0 0 15px rgba(255, 154, 158, 0.8), 0 0 30px rgba(255, 154, 158, 0.5);
+            font-size: 3.5rem;
+            line-height: 1.2;
+        }
+        @media (max-width: 640px) {
+            .amisha-font { font-size: 2.8rem; }
+        }
+        
+        .golden-theme {
+            background: linear-gradient(135deg, rgba(66,32,6,0.95) 0%, rgba(120,53,15,0.95) 50%, rgba(69,26,3,0.95) 100%) !important;
+        }
+        .golden-box {
+            background: rgba(251, 191, 36, 0.15) !important;
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.3);
+        }
+        
+        /* ડાબી બાજુ ઊભી પ્રોગ્રેસ બાર */
+        #vertical-progress-wrapper {
+            position: fixed; left: 6px; top: 25%; bottom: 25%; width: 10px;
+            background-color: rgba(30, 41, 59, 0.8);
+            border-radius: 999px; border: 1px solid #334155;
+            z-index: 40; display: flex; align-items: flex-end; overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        @media (min-width: 640px) { #vertical-progress-wrapper { left: 16px; width: 14px; } }
+        
+        #vertical-bar-fill {
+            width: 100%; background: linear-gradient(to top, #f59e0b, #facc15);
+            transition: height 0.5s ease-out; height: 0%;
+        }
+    </style>
+</head>
+<body id="main-body" class="font-sans transition-all duration-1000 pb-10 overflow-x-hidden">
+    <div id="dark-overlay-bg"></div>
+
+    <!-- ડેઇલી મૂડ પૉપ-અપ (સીધું જ ખુલશે) -->
+    <div id="mood-overlay" class="fixed inset-0 bg-slate-950/95 z-[60] flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-rose-500 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-[0_0_40px_rgba(243,24,104,0.4)]">
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-200 mb-6 drop-shadow-md">મારા જાન, આજે તું કેવું ફીલ કરી રહી છે?</h2>
+            <div id="mood-buttons" class="flex justify-center gap-3 sm:gap-4 mb-4">
+                <button onclick="handleMood('ખુશ')" class="bg-slate-800/80 hover:bg-slate-700 text-5xl p-4 sm:p-5 rounded-2xl transition hover:scale-110 shadow-lg">😊</button>
+                <button onclick="handleMood('થાકેલી')" class="bg-slate-800/80 hover:bg-slate-700 text-5xl p-4 sm:p-5 rounded-2xl transition hover:scale-110 shadow-lg">😩</button>
+                <button onclick="handleMood('એનર્જેટિક')" class="bg-slate-800/80 hover:bg-slate-700 text-5xl p-4 sm:p-5 rounded-2xl transition hover:scale-110 shadow-lg">🤩</button>
+            </div>
+            <div id="mood-response" class="hidden">
+                <p id="mood-response-text" class="text-rose-400 font-bold text-lg leading-relaxed mb-8"></p>
+                <button onclick="closeMood()" class="w-full bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-black py-4 px-6 rounded-xl shadow-[0_0_20px_rgba(225,29,72,0.5)] text-xl flex items-center justify-center gap-2 transition hover:scale-105">
+                    <span>Love</span> <span class="text-3xl animate-pulse drop-shadow-md">❤</span> <span>You</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- સ્ટીકી હેડર (સેન્ટર નામ અને ઇંગ્લિશ લેવલ) -->
+    <div class="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-xl border-b border-rose-500/30 py-2 sm:py-3 shadow-xl">
+        <div class="max-w-2xl mx-auto px-4 text-center flex flex-col items-center justify-center">
+            <!-- Amisha Name with New Font -->
+            <h1 class="amisha-font mb-1">Amisha</h1>
+            <p class="text-xs sm:text-sm font-bold text-white tracking-widest uppercase mb-3">Level: <span id="header-badge" class="text-amber-300">New Beginner 🌱</span></p>
+            
+            <div class="flex justify-between items-center w-full mb-1 text-[10px] sm:text-xs font-bold text-slate-300 px-2">
+                <span>0 Day</span>
+                <span id="overall-pct" class="text-amber-400">0%</span>
+                <span>75 Days</span>
+            </div>
+            <div class="w-full bg-slate-800/80 h-2 sm:h-2.5 rounded-full overflow-hidden shadow-inner border border-slate-700/50">
+                <div id="overall-bar" class="bg-gradient-to-r from-amber-600 to-yellow-400 h-full w-0 transition-all duration-700"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ડાબી બાજુ ઊભી પ્રોગ્રેસ લાઈન -->
+    <div id="vertical-progress-wrapper">
+        <div id="vertical-bar-fill"></div>
+    </div>
+
+    <!-- મેઇન કન્ટેનર (ઓવરફ્લો ફિક્સ - pl-6 ઉમેર્યું) -->
+    <div id="main-container" class="w-full max-w-2xl mx-auto px-3 pl-8 sm:px-8 mt-6 bg-slate-900/85 backdrop-blur-sm rounded-3xl shadow-2xl py-6 border border-slate-700 relative transition-all duration-1000 overflow-hidden box-border">
+        
+        <!-- હિડન મેજિક હાર્ટ -->
+        <button onclick="showMagicMessage()" class="absolute top-4 left-8 sm:left-6 text-2xl opacity-40 hover:opacity-100 transition-opacity drop-shadow-lg z-10">❤️</button>
+        <!-- સિક્રેટ વૉલ્ટ -->
+        <button onclick="openVault()" class="absolute top-4 right-4 sm:right-6 text-xl opacity-80 hover:opacity-100 text-amber-500 font-bold drop-shadow-md z-10">🔒 Vault</button>
+
+        <!-- કોઈન, સ્ટ્રીક અને પિરિયડ પાસ -->
+        <div class="flex justify-center gap-1 sm:gap-4 items-center mb-6 mt-10 bg-slate-800/70 p-2 sm:p-3 rounded-2xl border border-slate-600 flex-wrap shadow-lg">
+            <div class="text-center px-2 sm:px-4">
+                <span class="text-[10px] sm:text-xs text-slate-300 block mb-1 font-bold">સ્ટ્રીક</span>
+                <span id="streak-count" class="font-black text-amber-400 text-base sm:text-lg drop-shadow-md">🔥 ૦</span>
+            </div>
+            <div class="text-center border-l border-r border-slate-500 px-3 sm:px-4 cursor-pointer hover:scale-105 transition" onclick="openSiddhMenu()">
+                <span class="text-[10px] sm:text-xs text-amber-300/90 font-bold block mb-1 animate-pulse">કોઈન મેનુ!</span>
+                <span id="coin-count" class="font-black text-yellow-400 text-lg sm:text-xl drop-shadow-md">🪙 ૦</span>
+            </div>
+            <div class="text-center px-2 sm:px-4">
+                <button onclick="togglePeriodMode()" id="period-btn" class="bg-rose-900/60 hover:bg-rose-800 border border-rose-500 text-rose-100 px-2 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition shadow-md">
+                    🌸 પિરિયડ પાસ
+                </button>
+            </div>
+        </div>
+
+        <p id="date-subtitle" class="text-center text-sm sm:text-base text-slate-300 mb-6 font-bold tracking-wide bg-slate-800/50 py-2.5 rounded-xl border border-slate-700/50"></p>
+
+        <!-- વ્યુ સ્વિચર (ચેકલિસ્ટ / હિસ્ટ્રી) -->
+        <div class="flex gap-2 mb-6">
+            <button onclick="switchView('checklist')" id="btn-checklist" class="flex-1 bg-amber-500 text-slate-950 font-black py-3 rounded-xl text-sm transition shadow-lg">આજનો ટાર્ગેટ</button>
+            <button onclick="switchView('history')" id="btn-history" class="flex-1 bg-slate-800/80 text-slate-200 font-bold py-3 rounded-xl text-sm transition border border-slate-600 shadow-md">હિસ્ટ્રી (૧-૭૫)</button>
+        </div>
+
+        <!-- ચેકલિસ્ટ વ્યુ -->
+        <div id="view-checklist" class="space-y-6 mb-8">
+            
+            <div class="bg-slate-800/60 p-4 sm:p-5 rounded-2xl border border-slate-600 shadow-md">
+                <h2 class="text-amber-400 font-black text-base sm:text-lg mb-3 border-b border-slate-600 pb-2">☀️ સવારની શરૂઆત</h2>
+                <div class="space-y-3">
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="0" class="w-5 h-5 text-amber-500 rounded focus:ring-amber-400" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">સવારે ૫ વાગ્યે ઊઠવું</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="1" class="w-5 h-5 text-amber-500 rounded focus:ring-amber-400" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">ગરમ પાણી પીવું</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="2" class="w-5 h-5 text-amber-500 rounded focus:ring-amber-400" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">૨૦ મિનિટ મેડિટેશન</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="3" class="w-5 h-5 text-amber-500 rounded focus:ring-amber-400" onchange="handleCheck()"> <span class="font-bold text-amber-300 text-sm sm:text-base">સૂર્યનારાયણને જળ & દીવાબત્તી</span></label>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/60 p-4 sm:p-5 rounded-2xl border border-slate-600 shadow-md">
+                <h2 class="text-amber-400 font-black text-base sm:text-lg mb-3 border-b border-slate-600 pb-2">💪 હેવી વર્કઆઉટ</h2>
+                <div class="space-y-3">
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="4" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">૧૦૮ સૂર્ય નમસ્કાર</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="5" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">૧૦૦ પુશ-અપ</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="6" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">૨૫ ઇન્ક્લાઇન પુશ-અપ</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="7" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">૨૫ ડિક્લાઇન પુશ-અપ</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="8" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">૨૦૦ સ્ક્વોટ</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="9" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">૨૫૦ દોરડા (સ્કીપિંગ)</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="10" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-bold text-rose-400 drop-shadow-sm text-sm sm:text-base">એબ્સ અને હાર્ડ વર્કઆઉટ</span></label>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/60 p-4 sm:p-5 rounded-2xl border border-slate-600 shadow-md">
+                <h2 class="text-amber-400 font-black text-base sm:text-lg mb-3 border-b border-slate-600 pb-2">🏃‍♂️ કાર્ડિયો એન્ડ બોડી રિકવરી</h2>
+                <div class="space-y-3">
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="11" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">૨૦ મિનિટ રનિંગ</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="12" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">૧૫ મિનિટ બ્રિસ્ક વોકિંગ</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="13" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">૧૫ મિનિટ પાવર નેપ</span></label>
+                </div>
+            </div>
+
+            <!-- ડાયેટ અને ન્યુટ્રિશન -->
+            <div class="bg-slate-800/60 p-4 sm:p-5 rounded-2xl border border-slate-600 shadow-md relative overflow-hidden">
+                <h2 class="text-amber-400 font-black text-base sm:text-lg mb-3 border-b border-slate-600 pb-2">🥛 ડાયેટ એન્ડ ન્યુટ્રિશન</h2>
+                <div class="flex justify-between items-center">
+                    <div class="space-y-3 z-10 w-2/3">
+                        <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="14" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">પાણી (૧ લીટર) 💧</span></label>
+                        <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="15" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">પાણી (૨ લીટર) 💧</span></label>
+                        <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="16" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">પાણી (૩ લીટર) 💧</span></label>
+                        <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="17" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">પાણી (૪ લીટર) 💧</span></label>
+                        <label class="flex items-center space-x-3 cursor-pointer mt-3"><input type="checkbox" data-idx="18" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">૨ ગ્લાસ દૂધ પીવું</span></label>
+                    </div>
+                    <!-- ગ્રોઇંગ પ્લાન્ટ -->
+                    <div class="z-0 bg-slate-900/70 p-3 sm:p-4 rounded-full border border-slate-600 shadow-inner flex flex-col items-center justify-center min-w-[70px] min-h-[70px]">
+                        <span id="plant-visual" class="text-4xl sm:text-5xl transition-all duration-700 drop-shadow-xl transform hover:scale-110">🌱</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/60 p-4 sm:p-5 rounded-2xl border border-slate-600 shadow-md">
+                <h2 class="text-amber-400 font-black text-base sm:text-lg mb-3 border-b border-slate-600 pb-2">🧠 માઇન્ડ એન્ડ સ્કિલ</h2>
+                <div class="space-y-3">
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="19" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">કોઈપણ બુકના ૧૦ પાના વાંચવા</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="20" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">૦ કલાક ટીવી/ફોનનો ઉપયોગ</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="21" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-medium text-slate-100 text-sm sm:text-base">રાત્રે સૂતા પહેલા મેડિટેશન</span></label>
+                    <label class="flex items-center space-x-3 cursor-pointer"><input type="checkbox" data-idx="22" class="w-5 h-5 text-amber-500 rounded" onchange="handleCheck()"> <span class="font-bold text-amber-300 drop-shadow-sm text-sm sm:text-base">૩ સેલ્ફી લેવી 📸</span></label>
+                </div>
+            </div>
+
+            <!-- મૂનલાઇટ જર્નલ -->
+            <div class="bg-slate-900/95 border-2 border-rose-500/50 p-4 sm:p-5 rounded-2xl shadow-[0_0_20px_rgba(244,63,94,0.2)] mb-6">
+                <h2 class="text-rose-300 font-black text-sm sm:text-base mb-3 tracking-wide">🌙 મૂનલાઇટ ડાયરી (રાત્રે લખો)</h2>
+                <textarea id="journal-text" onchange="saveJournal()" class="w-full bg-slate-950/80 text-slate-100 text-sm sm:text-base rounded-xl p-4 border border-rose-900/50 focus:outline-none focus:border-rose-400 shadow-inner" rows="3" placeholder="આજના દિવસની સૌથી સારી વાત શું રહી?..."></textarea>
+            </div>
+        </div>
+
+        <!-- હિસ્ટ્રી વ્યુ (૭૫ દિવસોનું ગ્રીડ) -->
+        <div id="view-history" class="hidden mb-8">
+            <h2 class="text-xl font-black text-amber-400 mb-2">હિસ્ટ્રી (તમારા જૂના દિવસો)</h2>
+            <p class="text-xs text-slate-300 mb-4 bg-slate-800/60 p-2.5 rounded-lg border border-slate-700/50 font-medium">કોઈપણ નંબર પર ક્લિક કરીને જૂનો ડેટા જોઈ શકો છો.</p>
+            <div id="days-grid" class="grid grid-cols-5 sm:grid-cols-8 gap-2 sm:gap-3 max-h-[50vh] overflow-y-auto p-3 sm:p-4 bg-slate-900/80 rounded-2xl border border-slate-600 shadow-inner custom-scrollbar"></div>
+        </div>
+
+        <!-- મેમરી અનલોક સેક્શન (અઠવાડિયે ખુલશે) -->
+        <div id="memory-section" class="hidden mt-8 text-center bg-slate-800/90 p-6 rounded-3xl border-2 border-amber-500/50 shadow-xl">
+            <h3 class="text-amber-400 font-black mb-2 text-xl drop-shadow-md">🎁 નવી મેમરી અનલોક થઈ!</h3>
+            <p class="text-sm text-slate-200 mb-4 font-bold tracking-wide">સિદ્ધ તરફથી તારા માટે એક ખાસ યાદ...</p>
+            <div class="w-full h-48 bg-slate-950 flex items-center justify-center rounded-2xl border border-slate-600 text-slate-500 text-sm shadow-inner">
+                [અહીં સિદ્ધનો આપેલો ફોટો દેખાશે]
+            </div>
+        </div>
+    </div>
+
+    <!-- સેલિબ્રેશન પૉપ-અપ (WhatsApp Button) -->
+    <div id="congrats-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border-2 border-amber-500 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-[0_0_40px_rgba(245,158,11,0.5)]">
+            <div class="text-6xl mb-4 animate-bounce">🎆💖</div>
+            <h2 id="modal-day-title" class="text-3xl font-black text-amber-400 mb-2">દિવસ પૂરો!</h2>
+            <p class="text-xs text-amber-300/80 mb-6 font-bold tracking-widest uppercase">- સિદ્ધ તરફથી અમીષા માટે -</p>
+            <p id="modal-msg-text" class="text-slate-100 text-lg sm:text-xl mb-8 leading-relaxed font-bold italic drop-shadow-md"></p>
+            
+            <button onclick="sendWhatsAppAndClose()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black px-6 py-4 rounded-xl transition shadow-[0_0_25px_rgba(16,185,129,0.5)] text-lg flex items-center justify-center gap-2 hover:scale-105">
+                <span>WhatsApp પર રિપોર્ટ મોકલો!</span> <span class="animate-pulse text-2xl">❤️</span>
+            </button>
+            <p class="text-xs text-slate-400 mt-4 font-bold">આ બટન દબાવવાથી જ ફટાકડા બંધ થશે! 😜</p>
+        </div>
+    </div>
+
+    <!-- સિદ્ધ સ્પેશિયલ ૧૦૦ કોઈન મેનુ -->
+    <div id="siddh-menu" class="fixed inset-0 bg-slate-950/95 hidden flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div class="bg-slate-900 border-2 border-yellow-500 rounded-3xl p-5 sm:p-6 w-full max-w-sm text-center shadow-[0_0_40px_rgba(234,179,8,0.3)] my-8">
+            <h2 class="text-2xl font-black text-yellow-400 mb-2 drop-shadow-md">👑 સિદ્ધ સ્પેશિયલ મેનુ</h2>
+            <p class="text-xs text-slate-300 mb-6 font-bold">ગોલ્ડ કોઈન વાપરીને રિવોર્ડ માંગો!</p>
+            <div class="space-y-3 mb-6 text-left max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                <button onclick="redeemMenu(5, 'શોર્ટ ડ્રાઇવ અને આઈસ્ક્રીમ')" class="w-full bg-slate-800 p-3 sm:p-3.5 rounded-xl border border-slate-600 hover:border-yellow-400 transition flex justify-between items-center shadow-sm">
+                    <span class="text-sm font-bold text-slate-200">🍦 ડ્રાઇવ & આઈસ્ક્રીમ</span><span class="text-yellow-400 font-black">૫ 🪙</span>
+                </button>
+                <button onclick="redeemMenu(10, 'ફૂલ બોડી મસાજ (સિદ્ધ તરફથી)')" class="w-full bg-slate-800 p-3 sm:p-3.5 rounded-xl border border-slate-600 hover:border-yellow-400 transition flex justify-between items-center shadow-sm">
+                    <span class="text-sm font-bold text-slate-200">💆‍♀️ ફૂલ બોડી મસાજ</span><span class="text-yellow-400 font-black">૧૦ 🪙</span>
+                </button>
+                <button onclick="redeemMenu(15, 'તારું ફેવરિટ ડિનર')" class="w-full bg-slate-800 p-3 sm:p-3.5 rounded-xl border border-slate-600 hover:border-yellow-400 transition flex justify-between items-center shadow-sm">
+                    <span class="text-sm font-bold text-slate-200">🍲 ફેવરિટ ડિનર</span><span class="text-yellow-400 font-black">૧૫ 🪙</span>
+                </button>
+                <button onclick="redeemMenu(20, 'સરપ્રાઈઝ રોમેન્ટિક ડેટ')" class="w-full bg-slate-800 p-3 sm:p-3.5 rounded-xl border border-slate-600 hover:border-yellow-400 transition flex justify-between items-center shadow-sm">
+                    <span class="text-sm font-bold text-slate-200">🌹 રોમેન્ટિક ડેટ</span><span class="text-yellow-400 font-black">૨૦ 🪙</span>
+                </button>
+                <button onclick="redeemMenu(50, 'વિકેન્ડ ગેટવે (ટ્રિપ)')" class="w-full bg-slate-800 p-3 sm:p-3.5 rounded-xl border border-slate-600 hover:border-yellow-400 transition flex justify-between items-center shadow-sm">
+                    <span class="text-sm font-bold text-slate-200">🏖️ વિકેન્ડ ટ્રિપ</span><span class="text-yellow-400 font-black">૫૦ 🪙</span>
+                </button>
+                <button onclick="redeemMenu(75, 'મનપસંદ સોનાનું/ડાયમંડ ગિફ્ટ')" class="w-full bg-slate-800 p-3 sm:p-3.5 rounded-xl border-2 border-yellow-600 hover:border-yellow-400 transition flex justify-between items-center shadow-sm">
+                    <span class="text-sm font-bold text-slate-200">💎 ડાયમંડ ગિફ્ટ</span><span class="text-yellow-400 font-black">૭૫ 🪙</span>
+                </button>
+                <button onclick="redeemMenu(100, 'સિદ્ધનો ગુલામ પાસ (તું જે કહે એ કરીશ)')" class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 p-3 sm:p-4 rounded-xl border-2 border-yellow-300 text-slate-950 transition flex justify-between items-center shadow-lg hover:scale-105">
+                    <span class="text-sm font-black">🙇‍♂️ સિદ્ધ ગુલામ પાસ!</span><span class="text-slate-900 font-black text-base sm:text-lg">૧૦0 🪙</span>
+                </button>
+            </div>
+            <button onclick="closeSiddhMenu()" class="bg-rose-600 hover:bg-rose-500 text-white px-6 py-3 rounded-xl font-black w-full shadow-lg">બંધ કરો</button>
+        </div>
+    </div>
+
+    <!-- ડે ૭૬ વૉલ્ટ -->
+    <div id="vault-modal" class="fixed inset-0 bg-slate-950/95 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border-2 border-slate-600 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl">
+            <div class="text-6xl mb-4">🔒</div>
+            <h2 class="text-3xl font-black text-slate-200 mb-2">Secret Vault</h2>
+            <p id="vault-msg" class="text-amber-500 font-bold mb-6">આ તિજોરી માત્ર ૭૬મા દિવસે (ચેલેન્જ પૂરી થયા પછી) જ ખુલશે!</p>
+            <button onclick="closeVault()" class="bg-slate-700 hover:bg-slate-600 text-white px-8 py-3 rounded-xl font-bold shadow-md transition hover:scale-105">પાછા જાવ</button>
+        </div>
+    </div>
+
+    <!-- મેજિક હાર્ટ મેસેજ -->
+    <div id="magic-modal" class="fixed inset-0 bg-slate-950/85 hidden flex items-center justify-center z-50 p-4" onclick="this.classList.add('hidden')">
+        <div class="bg-gradient-to-br from-rose-900 to-rose-800 border-2 border-rose-400 rounded-3xl p-6 sm:p-8 text-center max-w-sm shadow-[0_0_50px_rgba(225,29,72,0.6)] transform transition-transform scale-100">
+            <div class="text-5xl mb-6 drop-shadow-md">❤️</div>
+            <p id="magic-msg-text" class="text-white font-bold text-lg sm:text-xl leading-relaxed drop-shadow-md"></p>
+            <p class="text-[10px] text-rose-300/70 mt-8 font-bold tracking-widest uppercase">(બંધ કરવા સ્ક્રીન પર ક્લિક કરો)</p>
+        </div>
+    </div>
+
+    <script>
+        // Data Version 12 (Mobile Fit & Rose Gold Font)
+        function safeGet(key, defaultVal) {
+            try { let val = localStorage.getItem(key); return val ? JSON.parse(val) : defaultVal; } 
+            catch(e) { return defaultVal; }
+        }
+
+        const totalTasks = 23; 
+        const targetNumber = "919773205322"; // Siddh's WhatsApp
+        
+        let challengeData = safeGet('chalData_v12', {});
+        let completedDaysSet = safeGet('compSet_v12', []);
+        let goldCoins = parseInt(localStorage.getItem('coins_v12')) || 0;
+        let streak = parseInt(localStorage.getItem('streak_v12')) || 0;
+        let isPeriodMode = safeGet('period_v12', false);
+        let journals = safeGet('journals_v12', {});
+        
+        const startDateKey = localStorage.getItem('startDate_v12') || new Date().toISOString().split('T')[0];
+        localStorage.setItem('startDate_v12', startDateKey);
+
+        let audioCtx = null;
+        let celebrationActive = false;
+        let fireworksInterval = null;
+        let bombIntervals = [];
+
+        function getCurrentCalendarDay() {
+            const start = new Date(startDateKey);
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            start.setHours(0,0,0,0);
+            const diffDays = Math.floor((today - start) / (1000 * 60 * 60 * 24)) + 1;
+            return diffDays < 1 ? 1 : diffDays;
+        }
+
+        let viewingDay = getCurrentCalendarDay();
+
+        const levels = [
+            "New Beginner 🌱", "Active Girl 🏃‍♀️", "Warrior Wife ⚔️", 
+            "Fire Girl 🔥", "Unstoppable Queen 👑", "Determined Darling 💖",
+            "Champion of Siddh 🏆", "Iron Lady 🦾", "Goddess of Dedication 👸", "The Legend 🌟"
+        ];
+
+        // મેજિક હાર્ટ મેસેજ
+        const heartMessages = [
+            "મને ખબર છે તું થાકી ગઈ છો, પણ તારી આ મહેનત જોઈને હું તારા પર ફિદા થઈ ગયો છું! બસ થોડી વધુ હિંમત! લવ યુ! 😘",
+            "તારો ચહેરો જ્યારે પરસેવે રેબઝેબ હોય ને, ત્યારે તું દુનિયાની સૌથી સુંદર છોકરી લાગે છે! 💖",
+            "સિદ્ધ હંમેશાં તારી સાથે જ છે, ભલે ગમે તે થાય. હાર ન માનતી મારી જાન! 💪",
+            "આજે કંટાળો આવે છે? બસ એક મોટો શ્વાસ લે અને મારી સામે જો... I am proud of you! 🥰",
+            "તારી જીદ જ તને મંઝિલ સુધી પહોંચાડશે. You are my queen! 👑",
+            "થાક લાગે તો મારા ખભા પર માથું મૂકી દેજે, પણ સફર ન છોડતી. Love you! ❤️",
+            "તારી આ મહેનત એક દિવસ ઇતિહાસ રચશે. કીપ ઇટ અપ ડાર્લિંગ! 🌟",
+            "હું ખુશનસીબ છું કે તારા જેવી મજબૂત લાઇફ પાર્ટનર મને મળી. તું અદભુત છો! 🌹",
+            "રોજ તને આમ આગળ વધતી જોઈને મને થાય છે કે તને એક ટાઈટ હગ આપી દઉં! 🤗",
+            "આ દુનિયામાં એવું કંઈ જ નથી જે મારી અમીષા ન કરી શકે! 🔥",
+            "બસ થોડા જ દિવસોની મહેનત બાકી છે, આખી જિંદગી આપણે આ દિવસો યાદ રાખીશું! ✨",
+            "તારું સ્મિત એ મારી સૌથી મોટી તાકાત છે, એને ક્યારેય ન ખોતી. 😊",
+            "જે દિવસે આ ચેલેન્જ પૂરી થશે ને, તે દિવસે હું તારા માટે દુનિયાની બધી ખુશીઓ લાવી દઈશ! 🎁",
+            "તારો પરસેવો એ તારી સફળતાનો શણગાર છે. ઢગલો પ્રેમ તારા માટે! 💖",
+            "Love you to the moon and back! તું જ મારું સર્વસ્વ છો! 🌙"
+        ];
+
+        function showMagicMessage() { 
+            let rand = Math.floor(Math.random() * heartMessages.length);
+            document.getElementById('magic-msg-text').innerText = heartMessages[rand];
+            document.getElementById('magic-modal').classList.remove('hidden'); 
+        }
+
+        // Progressive Romance Logic
+        function getRomanticMessage(day) {
+            if (day <= 15) {
+                const msgs = [
+                    "આજે પેલો દિવસ પૂરો થયો! તારી આ મહેનત જોઈને મને ગર્વ થાય છે.",
+                    "તું ધારે એ મેળવી શકે છે અમીષા. સિદ્ધ તારી સાથે જ છે.",
+                    "તારી ફિટનેસ અને ડેડિકેશન દિલ ખુશ કરી દે છે.",
+                    "બસ આમ જ આગળ વધતી જા, તારો ઉત્સાહ મારી પ્રેરણા છે!"
+                ];
+                return msgs[(day-1) % msgs.length];
+            } else if (day <= 30) {
+                const msgs = [
+                    "તારા ચહેરા પરનો આ ગ્લો અને તારી મહેનત મને તારા પ્રેમમાં વધુ પાગલ કરી રહ્યા છે.",
+                    "તું જેટલી સુંદર છે, એટલો જ મજબૂત તારો ઈરાદો છે. Love you my strong girl!",
+                    "અમીષા, તારી આ સફર મને પણ રોજ કંઈક નવું શીખવે છે. તું કમાલ છો!",
+                    "થાક્યા પછી પણ જે તારું સ્મિત છે ને, એના પર હું ફિદા છું!"
+                ];
+                return msgs[(day-1) % msgs.length];
+            } else if (day <= 50) {
+                const msgs = [
+                    "અડધી મંઝિલ કાપી નાખી! તું મારી જિંદગીની સૌથી સ્ટ્રોંગ અને સ્માર્ટ ક્વીન છો.",
+                    "મારી આંખોમાં જોઈ લે, તારા માટે મારું સન્માન અને પ્રેમ આસમાન આંબી ગયા છે.",
+                    "રોજ તને આમ મહેનત કરતી જોઈને મને થાય છે કે હું દુનિયાનો સૌથી નસીબદાર માણસ છું.",
+                    "તારી હિંમત અને તાકાતને મારા હૃદયથી સલામ. તું અદભુત છો મારી જાન!"
+                ];
+                return msgs[(day-1) % msgs.length];
+            } else {
+                const msgs = [
+                    "બસ થોડા જ દિવસો! તારી આ સફર ઇતિહાસ બનાવશે, અને તારો આ સિદ્ધ હંમેશાં તારો જ રહેશે.",
+                    "તું મારી ડ્રીમ ગર્લ હતી, છે અને હંમેશાં રહેશે. તારી આ દ્રઢતાની કોઈ સરખામણી નથી.",
+                    "તારા વગર મારી જિંદગી અધૂરી છે, અને તારી આ જીત આપણી બંનેની જીત છે.",
+                    "મારા શબ્દો ખૂટી પડે એટલો ગર્વ અને પ્રેમ હું અત્યારે તારા માટે અનુભવી રહ્યો છું. I Love You to the moon and back! 💖"
+                ];
+                return msgs[(day-1) % msgs.length];
+            }
+        }
+
+        function handleMood(mood) {
+            try {
+                if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                playHardSnapSound();
+            } catch(e) {}
+            
+            const btnGroup = document.getElementById('mood-buttons');
+            const respDiv = document.getElementById('mood-response');
+            const respText = document.getElementById('mood-response-text');
+            
+            btnGroup.classList.add('hidden');
+            respDiv.classList.remove('hidden');
+
+            const dayMsg = `(દિવસ ${viewingDay})\n`;
+            if(mood === 'ખુશ') respText.innerText = dayMsg + "તારી આ ખુશી જોઈને મારો આખો દિવસ સુધરી ગયો! આજની ચેલેન્જ ધમાકેદાર પૂરી કર! 😘";
+            if(mood === 'થાકેલી') respText.innerText = dayMsg + "બૈરું થાકી ગયું છે? કોઈ વાંધો નહિ, તું બહુ જ સ્ટ્રોંગ છો, આજનો દિવસ ખેંચી લે, મારો પૂરો સપોર્ટ તારી સાથે જ છે! હગ્સ! ❤️";
+            if(mood === 'એનર્જેટિક') respText.innerText = dayMsg + "વાહ મારી શેરની! આજની તારી એનર્જી જોઇને મને પણ જોશ આવી ગયો! તોડી નાખ આજે તો! 🔥";
+        }
+
+        function closeMood() {
+            playHardSnapSound();
+            document.getElementById('mood-overlay').classList.add('hidden');
+            setupDayUI();
+        }
+
+        function setupDayUI() {
+            const body = document.getElementById('main-body');
+            const cont = document.getElementById('main-container');
+            if (viewingDay % 10 === 0 && viewingDay > 0) {
+                body.classList.add('golden-theme');
+                cont.classList.add('golden-box');
+            } else {
+                body.classList.remove('golden-theme');
+                cont.classList.remove('golden-box');
+            }
+
+            let titleIdx = Math.floor((viewingDay - 1) / 6);
+            if (titleIdx > levels.length - 1) titleIdx = levels.length - 1;
+            document.getElementById('header-badge').innerText = levels[titleIdx];
+
+            let targetDate = new Date(startDateKey);
+            targetDate.setDate(targetDate.getDate() + (viewingDay - 1));
+            document.getElementById('date-subtitle').innerText = `આજનો ટાર્ગેટ: દિવસ ${viewingDay} | તારીખ: ${targetDate.toLocaleDateString('gu-IN')}`;
+
+            const overallPct = Math.round((completedDaysSet.length / 75) * 100);
+            document.getElementById('overall-pct').innerText = `${overallPct}%`;
+            document.getElementById('overall-bar').style.width = `${overallPct}%`;
+
+            document.getElementById('coin-count').innerText = `🪙 ${goldCoins}`;
+            document.getElementById('streak-count').innerText = `🔥 ${streak}`;
+            updatePeriodButtonUI();
+
+            document.getElementById('journal-text').value = journals[viewingDay] || "";
+
+            if (viewingDay >= 7 && viewingDay % 7 === 0) {
+                document.getElementById('memory-section').classList.remove('hidden');
+            } else {
+                document.getElementById('memory-section').classList.add('hidden');
+            }
+
+            loadChecklist();
+        }
+
+        function switchView(view) {
+            const checkView = document.getElementById('view-checklist');
+            const histView = document.getElementById('view-history');
+            const btnCheck = document.getElementById('btn-checklist');
+            const btnHist = document.getElementById('btn-history');
+
+            playHardSnapSound();
+            if (view === 'checklist') {
+                checkView.classList.remove('hidden'); histView.classList.add('hidden');
+                btnCheck.className = "flex-1 bg-amber-500 text-slate-950 font-black py-3 rounded-xl text-sm transition shadow-lg";
+                btnHist.className = "flex-1 bg-slate-800/80 text-slate-200 font-bold py-3 rounded-xl text-sm transition border border-slate-600 shadow-md";
+            } else {
+                checkView.classList.add('hidden'); histView.classList.remove('hidden');
+                btnHist.className = "flex-1 bg-amber-500 text-slate-950 font-black py-3 rounded-xl text-sm transition shadow-lg";
+                btnCheck.className = "flex-1 bg-slate-800/80 text-slate-200 font-bold py-3 rounded-xl text-sm transition border border-slate-600 shadow-md";
+                renderHistoryGrid();
+            }
+        }
+
+        function renderHistoryGrid() {
+            const grid = document.getElementById('days-grid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= 75; i++) {
+                const isCompleted = completedDaysSet.includes(i);
+                const isCurrent = (i === getCurrentCalendarDay());
+                
+                const btn = document.createElement('button');
+                btn.className = `p-3 sm:p-4 rounded-xl font-black text-sm transition border-2 ${isCompleted ? 'bg-emerald-600 border-emerald-400 text-white shadow-[0_0_15px_rgba(16,185,129,0.5)]' : isCurrent ? 'bg-amber-600 border-amber-300 text-white animate-pulse shadow-lg' : 'bg-slate-800/60 border-slate-600 text-slate-300 hover:bg-slate-700 hover:border-slate-400'}`;
+                btn.innerText = i;
+                btn.onclick = () => {
+                    viewingDay = i;
+                    switchView('checklist');
+                    setupDayUI();
+                };
+                grid.appendChild(btn);
+            }
+        }
+
+        function loadChecklist() {
+            const boxes = document.querySelectorAll('input[type="checkbox"]');
+            const state = challengeData[viewingDay] || new Array(totalTasks).fill(false);
+            boxes.forEach((cb, i) => {
+                cb.checked = state[i];
+                if (isPeriodMode && [3, 4, 5, 6, 7, 8, 9, 10].includes(i)) {
+                    cb.disabled = true;
+                    cb.parentElement.classList.add('opacity-40', 'pointer-events-none');
+                } else {
+                    cb.disabled = false;
+                    cb.parentElement.classList.remove('opacity-40', 'pointer-events-none');
+                }
+            });
+            updateProgressBars(state);
+        }
+
+        function handleCheck() {
+            playHardSnapSound();
+            const boxes = document.querySelectorAll('input[type="checkbox"]');
+            let state = [];
+            let count = 0;
+            boxes.forEach(cb => { state.push(cb.checked); if(cb.checked) count++; });
+            
+            challengeData[viewingDay] = state;
+            localStorage.setItem('chalData_v12', JSON.stringify(challengeData));
+            updateProgressBars(state);
+
+            const isDone = (count === totalTasks);
+            const wasDone = completedDaysSet.includes(viewingDay);
+
+            if (isDone && !wasDone) {
+                completedDaysSet.push(viewingDay);
+                localStorage.setItem('compSet_v12', JSON.stringify(completedDaysSet));
+                streak++;
+                if (streak > 0 && streak % 7 === 0) {
+                    goldCoins++; alert('૭ દિવસની શાનદાર સ્ટ્રીક! ૧ ગોલ્ડ કોઈન મળ્યો 🪙');
+                }
+                saveGlobalData();
+                setupDayUI(); 
+                startNonStopCelebration();
+            } else if (!isDone && wasDone) {
+                completedDaysSet = completedDaysSet.filter(d => d !== viewingDay);
+                if (streak > 0) streak--;
+                saveGlobalData();
+                setupDayUI();
+            }
+        }
+
+        function updateProgressBars(state) {
+            const count = state.filter(Boolean).length;
+            const pct = Math.round((count / totalTasks) * 100);
+            
+            document.getElementById('vertical-bar-fill').style.height = `${pct}%`;
+            
+            let water = (state[14]?1:0) + (state[15]?1:0) + (state[16]?1:0) + (state[17]?1:0);
+            const plant = document.getElementById('plant-visual');
+            if(water === 0) plant.innerText = "🌱"; 
+            else if(water === 1) plant.innerText = "🌿"; 
+            else if(water === 2) plant.innerText = "🪴"; 
+            else if(water === 3) plant.innerText = "🌸"; 
+            else if(water === 4) plant.innerText = "🌹"; 
+        }
+
+        function togglePeriodMode() {
+            playHardSnapSound();
+            if (!isPeriodMode) {
+                if (confirm(`પિરિયડ પાસ એક્ટિવ કરવાથી સૂર્યનારાયણ/દીવા અને હેવી વર્કઆઉટના બધા ટાસ્ક ઓટો-ટિક થઈ જશે. મંજૂર?`)) {
+                    isPeriodMode = true; saveGlobalData();
+                    let state = challengeData[viewingDay] || new Array(totalTasks).fill(false);
+                    [3, 4, 5, 6, 7, 8, 9, 10].forEach(i => state[i] = true);
+                    challengeData[viewingDay] = state;
+                    localStorage.setItem('chalData_v12', JSON.stringify(challengeData));
+                    setupDayUI(); handleCheck(); 
+                }
+            } else {
+                isPeriodMode = false; saveGlobalData(); setupDayUI();
+            }
+        }
+
+        function updatePeriodButtonUI() {
+            const btn = document.getElementById('period-btn');
+            if (isPeriodMode) {
+                btn.className = "bg-rose-600 border-2 border-rose-400 text-white px-2 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-black animate-pulse shadow-[0_0_15px_rgba(225,29,72,0.6)]";
+                btn.innerText = "🌸 પાસ એક્ટિવ";
+            } else {
+                btn.className = "bg-rose-900/60 hover:bg-rose-800 border border-rose-500 text-rose-100 px-2 sm:px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition shadow-md";
+                btn.innerText = "🌸 પિરિયડ પાસ";
+            }
+        }
+
+        function saveJournal() {
+            journals[viewingDay] = document.getElementById('journal-text').value;
+            localStorage.setItem('journals_v12', JSON.stringify(journals));
+        }
+
+        function saveGlobalData() {
+            localStorage.setItem('coins_v12', goldCoins);
+            localStorage.setItem('streak_v12', streak);
+            localStorage.setItem('period_v12', JSON.stringify(isPeriodMode));
+            document.getElementById('coin-count').innerText = `🪙 ${goldCoins}`;
+            document.getElementById('streak-count').innerText = `🔥 ${streak}`;
+        }
+
+        function startNonStopCelebration() {
+            celebrationActive = true;
+            triggerRealFireworksLoop();
+            
+            setTimeout(() => {
+                if(!celebrationActive) return;
+                document.getElementById('modal-msg-text').innerText = getRomanticMessage(viewingDay);
+                document.getElementById('congrats-modal').classList.remove('hidden');
+            }, 3000);
+        }
+
+        function triggerRealFireworksLoop() {
+            if(!celebrationActive) return;
+            playDynamicBomb();
+            
+            fireworksInterval = setInterval(() => {
+                if(!celebrationActive) return clearInterval(fireworksInterval);
+                confetti({ startVelocity: 45, spread: 360, ticks: 100, zIndex: 999, particleCount: 80, origin: { x: Math.random(), y: Math.random() - 0.2 } });
+            }, 600);
+
+            let b1 = setInterval(() => { if(celebrationActive) playDynamicBomb(); else clearInterval(b1); }, 4000);
+            let b2 = setInterval(() => { if(celebrationActive) playDynamicBomb(); else clearInterval(b2); }, 7000);
+            bombIntervals.push(b1, b2);
+        }
+
+        function sendWhatsAppAndClose() {
+            celebrationActive = false;
+            clearInterval(fireworksInterval);
+            bombIntervals.forEach(clearInterval);
+            document.getElementById('congrats-modal').classList.add('hidden');
+
+            const txt = document.getElementById('journal-text').value || "(કંઈ લખ્યું નથી)";
+            const msg = `Siddh! મેં આજનો દિવસ ${viewingDay} કમ્પ્લીટ કરી લીધો છે! 🥳\n\nમારી મૂનલાઇટ ડાયરી:\n"${txt}"\n\nઆ રહી મારી આજની ૩ સેલ્ફી! 👇`;
+            const url = `https://wa.me/${targetNumber}?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+        }
+
+        function openSiddhMenu() { playHardSnapSound(); document.getElementById('siddh-menu').classList.remove('hidden'); }
+        function closeSiddhMenu() { playHardSnapSound(); document.getElementById('siddh-menu').classList.add('hidden'); }
+        
+        function redeemMenu(cost, name) {
+            playHardSnapSound();
+            if (goldCoins >= cost) {
+                if(confirm(`શું તમે "${name}" માટે ${cost} કોઈન વાપરવા માંગો છો?`)) {
+                    goldCoins -= cost; saveGlobalData(); 
+                    alert('ડન! સિદ્ધને જલ્દી વોટ્સએપ પર સ્ક્રીનશોટ મોકલીને કહી દો!'); 
+                    closeSiddhMenu();
+                }
+            } else alert('અરેરે! તારી પાસે પૂરતા કોઈન નથી જાન, હજુ મહેનત કર! 😜');
+        }
+
+        function openVault() {
+            playHardSnapSound();
+            const v = document.getElementById('vault-modal');
+            const msg = document.getElementById('vault-msg');
+            v.classList.remove('hidden');
+            if (viewingDay >= 76) {
+                msg.innerText = "વૉલ્ટ ખુલી ગયું છે! સિદ્ધનું સરપ્રાઈઝ તૈયાર છે! 🎁";
+                msg.className = "text-emerald-400 font-bold mb-6 text-xl animate-pulse";
+            }
+        }
+        function closeVault() { playHardSnapSound(); document.getElementById('vault-modal').classList.add('hidden'); }
+
+        function playHardSnapSound() {
+            try {
+                if (!audioCtx) return;
+                const t = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square'; osc.frequency.setValueAtTime(800, t); osc.frequency.exponentialRampToValueAtTime(100, t + 0.05);
+                gain.gain.setValueAtTime(1.5, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.05);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(t); osc.stop(t + 0.05);
+            } catch(e) {}
+        }
+
+        function playDynamicBomb() {
+            try {
+                if (!audioCtx) return;
+                const t = audioCtx.currentTime;
+                const w = audioCtx.createOscillator(); const wG = audioCtx.createGain();
+                w.type = 'triangle'; w.frequency.setValueAtTime(400 + Math.random()*200, t); w.frequency.exponentialRampToValueAtTime(1800, t+1);
+                wG.gain.setValueAtTime(0, t); wG.gain.linearRampToValueAtTime(0.5, t+0.2); wG.gain.linearRampToValueAtTime(0, t+1);
+                w.connect(wG); wG.connect(audioCtx.destination); w.start(t); w.stop(t+1);
+                
+                setTimeout(() => {
+                    if(!audioCtx) return;
+                    const bTime = audioCtx.currentTime;
+                    const boom = audioCtx.createOscillator(); const bG = audioCtx.createGain();
+                    boom.type = 'sine'; boom.frequency.setValueAtTime(120 + Math.random()*40, bTime); boom.frequency.exponentialRampToValueAtTime(20, bTime+1.5);
+                    bG.gain.setValueAtTime(2.5, bTime); bG.gain.exponentialRampToValueAtTime(0.01, bTime+1.5);
+                    boom.connect(bG); bG.connect(audioCtx.destination); boom.start(bTime); boom.stop(bTime+1.5);
+                    
+                    const buf = audioCtx.createBuffer(1, audioCtx.sampleRate*2, audioCtx.sampleRate);
+                    const dat = buf.getChannelData(0); for(let i=0; i<buf.length; i++) dat[i]=Math.random()*2-1;
+                    const noise = audioCtx.createBufferSource(); noise.buffer = buf;
+                    const flt = audioCtx.createBiquadFilter(); flt.type = 'lowpass'; flt.frequency.setValueAtTime(2000, bTime); flt.frequency.exponentialRampToValueAtTime(100, bTime+1.5);
+                    const shp = audioCtx.createWaveShaper(); shp.curve = makeDistortionCurve(50);
+                    const nG = audioCtx.createGain(); nG.gain.setValueAtTime(2.5, bTime); nG.gain.exponentialRampToValueAtTime(0.01, bTime+1.5);
+                    noise.connect(shp); shp.connect(flt); flt.connect(nG); nG.connect(audioCtx.destination);
+                    noise.start(bTime); noise.stop(bTime+1.5);
+                }, 1000);
+            } catch(e) {}
+        }
+
+        function makeDistortionCurve(amount) {
+            let k = amount, n = 44100, curve = new Float32Array(n), deg = Math.PI/180;
+            for(let i=0; i<n; ++i) { let x = i*2/n-1; curve[i] = (3+k)*x*20*deg / (Math.PI + k*Math.abs(x)); }
+            return curve;
+        }
+    </script>
+</body>
+</html>
+
